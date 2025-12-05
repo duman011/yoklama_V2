@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'classroom_form_screen.dart';
 import 'attendance_session_screen.dart';
+import '../widgets/minute_clock_picker.dart';
 
 class AcademicHomeScreen extends StatefulWidget {
   // ignore: use_super_parameters
@@ -152,7 +153,7 @@ class _AcademicHomeScreenState extends State<AcademicHomeScreen> {
     // Close the bottom sheet first
     Navigator.of(ctx).pop();
 
-    // Ask the user for duration in minutes using a large minute-picker UI
+    // Ask the user for duration in minutes using a circular minute-picker UI
     final minutes = await showDialog<int>(
       context: context,
       builder: (dctx) {
@@ -162,40 +163,62 @@ class _AcademicHomeScreenState extends State<AcademicHomeScreen> {
           contentPadding: const EdgeInsets.all(12),
           title: const Text('Süre seçin (dakika)'),
           content: SizedBox(
-            height: 300,
+            height: 360,
+            width: 360,
             child: Column(
               children: [
-                // big display
-                Container(
-                  padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 20),
-                  decoration: BoxDecoration(borderRadius: BorderRadius.circular(12), color: Theme.of(context).colorScheme.primary.withOpacity(0.08)),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text('$selected', style: Theme.of(context).textTheme.displayMedium?.copyWith(fontWeight: FontWeight.bold)),
-                      const SizedBox(width: 8),
-                      Text('dk', style: Theme.of(context).textTheme.titleMedium),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 12),
                 Expanded(
                   child: Center(
                     child: SizedBox(
-                      height: 160,
+                      width: 320,
                       child: StatefulBuilder(builder: (ctx, setSt) {
-                        return ListWheelScrollView.useDelegate(
-                          itemExtent: 48,
-                          physics: const FixedExtentScrollPhysics(),
-                          perspective: 0.003,
-                          onSelectedItemChanged: (i) => setSt(() => selected = i + 1),
-                          childDelegate: ListWheelChildBuilderDelegate(
-                            builder: (context, index) {
-                              final val = index + 1;
-                              return Center(child: Text('$val', style: TextStyle(fontSize: 20, color: val == selected ? Theme.of(context).colorScheme.primary : Colors.black87)));
-                            },
-                            childCount: 180,
-                          ),
+                        return Column(
+                          children: [
+                            // minute clock picker widget
+                            SizedBox(height: 8),
+                            Expanded(
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                                child: Column(
+                                  children: [
+                                    // use our custom widget
+                                    Expanded(
+                                      child: Center(
+                                        child: Builder(builder: (_) {
+                                          return SizedBox(
+                                            height: 260,
+                                            child: Column(children: [
+                                              // The picker itself
+                                              Expanded(
+                                                child: SingleChildScrollView(
+                                                  child: SizedBox(
+                                                    height: 260,
+                                                    child: Column(children: [
+                                                      Expanded(
+                                                        child: Center(
+                                                          child: Padding(
+                                                            padding: const EdgeInsets.all(4.0),
+                                                            child: MinuteClockPicker(
+                                                              initialMinutes: selected,
+                                                              onChanged: (m) => setSt(() => selected = m),
+                                                            ),
+                                                          ),
+                                                        ),
+                                                      ),
+                                                    ]),
+                                                  ),
+                                                ),
+                                              ),
+                                            ]),
+                                          );
+                                        }),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ],
                         );
                       }),
                     ),
