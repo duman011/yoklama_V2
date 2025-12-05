@@ -134,9 +134,9 @@ class _AcademicHomeScreenState extends State<AcademicHomeScreen> {
                     onSelected: (value) async {
                       if (value == 0) {
                         int selected = 30;
-                        final minutes = await showDialog<int>(
-                          context: context,
-                          builder: (dctx) {
+                          final minutes = await Future.delayed(Duration.zero, () => showDialog<int>(
+                                context: context,
+                                builder: (dctx) {
                             // provide a controller so user can type minutes directly
                             final controller = TextEditingController(text: selected.toString());
                             return StatefulBuilder(builder: (dctx2, setSt) {
@@ -183,7 +183,7 @@ class _AcademicHomeScreenState extends State<AcademicHomeScreen> {
                               );
                             });
                           },
-                        );
+                        ));
                         if (minutes == null) return;
                         Navigator.of(context, rootNavigator: true).push<bool>(
                           MaterialPageRoute(builder: (_) => AttendanceSessionScreen(course: c, durationMinutes: minutes)),
