@@ -129,144 +129,72 @@ class _AcademicHomeScreenState extends State<AcademicHomeScreen> {
                 // place the işlemler button after details so it doesn't overlap text
                 Align(
                   alignment: Alignment.centerRight,
-                  child: ElevatedButton.icon(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Theme.of(context).colorScheme.primary,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                    ),
-                    onPressed: () {
-                      showModalBottomSheet<void>(
-                        context: context,
-                        isScrollControlled: true,
-                        shape: const RoundedRectangleBorder(
-                          borderRadius: BorderRadius.vertical(top: Radius.circular(12)),
-                        ),
-                        builder: (ctx) => SafeArea(
-                          child: Padding(
-                            padding: EdgeInsets.only(bottom: MediaQuery.of(ctx).viewInsets.bottom),
-                            child: Wrap(
-                              children: [
-                                ListTile(
-  leading: const Icon(Icons.play_arrow),
-  title: const Text('Dersi Başlat'),
-  onTap: () async {
-    // Close the bottom sheet first
-    Navigator.of(ctx).pop();
-
-    // Ask the user for duration in minutes using a circular minute-picker UI
-    final minutes = await showDialog<int>(
-      context: context,
-      builder: (dctx) {
-        int selected = 30;
-        final mq = MediaQuery.of(dctx);
-        return AlertDialog(
-          insetPadding: const EdgeInsets.symmetric(horizontal: 18, vertical: 24),
-          contentPadding: const EdgeInsets.all(12),
-          title: const Text('Süre seçin (dakika)'),
-          content: ConstrainedBox(
-            constraints: BoxConstraints(maxHeight: mq.size.height * 0.65, maxWidth: mq.size.width * 0.95),
-            child: SingleChildScrollView(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 6.0, vertical: 4.0),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const SizedBox(height: 8),
-                    SizedBox(
-                      width: mq.size.width * 0.85,
-                      child: StatefulBuilder(builder: (ctx, setSt) {
-                        return Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                              child: MinuteClockPicker(
-                                initialMinutes: selected,
-                                onChanged: (m) => setSt(() => selected = m),
+                  child: PopupMenuButton<int>(
+                    tooltip: 'İşlemler',
+                    onSelected: (value) async {
+                      if (value == 0) {
+                        int selected = 30;
+                        final minutes = await showDialog<int>(
+                          context: context,
+                          builder: (dctx) {
+                            final mq = MediaQuery.of(dctx);
+                            return AlertDialog(
+                              insetPadding: const EdgeInsets.symmetric(horizontal: 18, vertical: 24),
+                              contentPadding: const EdgeInsets.all(12),
+                              title: const Text('Süre seçin (dakika)'),
+                              content: ConstrainedBox(
+                                constraints: BoxConstraints(maxHeight: mq.size.height * 0.65, maxWidth: mq.size.width * 0.95),
+                                child: SingleChildScrollView(
+                                  child: Padding(
+                                    padding: const EdgeInsets.symmetric(horizontal: 6.0, vertical: 4.0),
+                                    child: Column(mainAxisSize: MainAxisSize.min, children: [
+                                      const SizedBox(height: 8),
+                                      MinuteClockPicker(initialMinutes: selected, onChanged: (m) => selected = m),
+                                      const SizedBox(height: 12),
+                                      Text('\$selected dk', style: Theme.of(context).textTheme.titleLarge),
+                                    ]),
+                                  ),
+                                ),
                               ),
-                            ),
-                            const SizedBox(height: 12),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Text('Seçili: ', style: Theme.of(context).textTheme.bodyMedium),
-                                const SizedBox(width: 6),
-                                Text('\$selected dk', style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold)),
+                              actions: [
+                                TextButton(onPressed: () => Navigator.of(dctx).pop(), child: const Text('İptal')),
+                                ElevatedButton(onPressed: () => Navigator.of(dctx).pop(selected), child: const Text('Başlat')),
                               ],
-                            ),
-                          ],
+                            );
+                          },
                         );
-                      }),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-          actions: [
-            TextButton(onPressed: () => Navigator.of(dctx).pop(), child: const Text('İptal')),
-            ElevatedButton(onPressed: () => Navigator.of(dctx).pop(selected), child: const Text('Başlat')),
-          ],
-        );
-      },
-    );
-
-    if (minutes == null) return; // cancelled
-
-    // Open the attendance session screen with given duration
-    Navigator.of(context, rootNavigator: true).push<bool>(
-      MaterialPageRoute(
-        builder: (_) => AttendanceSessionScreen(course: c, durationMinutes: minutes),
-      ),
-    ).then((finished) {
-      if (finished == true && mounted) {
-        setState(() {
-          _courses[idx] = {
-            ..._courses[idx],
-            'status': 'finished',
-          };
-        });
-      }
-    });
-  },
-),
-                                ListTile(leading: const Icon(Icons.edit), title: const Text('Düzenle'), onTap: () async {
-                                  Navigator.of(ctx).pop();
-                                  final edited = await Navigator.of(context).push<Map<String, String?>>(
-                                    MaterialPageRoute(builder: (_) => ClassroomFormScreen(initial: c)),
-                                  );
-                                  if (edited != null) {
-                                    // assume API returns true
-                                    setState(() {
-                                      _courses[idx] = {
-                                        'code': edited['code'] ?? c['code']!,
-                                        'name': edited['name'] ?? c['name']!,
-                                        'faculty': edited['faculty'] ?? c['faculty']!,
-                                        'department': edited['department'] ?? c['department']!,
-                                        'branch': edited['branch'] ?? c['branch']!,
-                                        'image': c['image']!,
-                                      };
-                                    });
-                                  }
-                                }),
-                                ListTile(leading: const Icon(Icons.delete), title: const Text('Sil'), onTap: () async {
-                                  Navigator.of(ctx).pop();
-                                  // simulate API delete
-                                  final ok = await Future.delayed(const Duration(milliseconds: 400), () => true);
-                                  if (ok) {
-                                    setState(() => _courses.removeAt(idx));
-                                  }
-                                }),
-                              ],
-                            ),
-                          ),
-                        ),
-                      );
+                        if (minutes == null) return;
+                        Navigator.of(context, rootNavigator: true).push<bool>(
+                          MaterialPageRoute(builder: (_) => AttendanceSessionScreen(course: c, durationMinutes: minutes)),
+                        );
+                      } else if (value == 1) {
+                        final edited = await Navigator.of(context).push<Map<String, String?>>(MaterialPageRoute(builder: (_) => ClassroomFormScreen(initial: c)));
+                        if (edited != null) {
+                          setState(() {
+                            _courses[idx] = {
+                              'code': edited['code'] ?? c['code']!,
+                              'name': edited['name'] ?? c['name']!,
+                              'faculty': edited['faculty'] ?? c['faculty']!,
+                              'department': edited['department'] ?? c['department']!,
+                              'branch': edited['branch'] ?? c['branch']!,
+                              'image': c['image']!,
+                            };
+                          });
+                        }
+                      } else if (value == 2) {
+                        final ok = await Future.delayed(const Duration(milliseconds: 400), () => true);
+                        if (ok) setState(() => _courses.removeAt(idx));
+                      }
                     },
-                    icon: const Icon(Icons.more_horiz),
-                    label: const Padding(
-                      padding: EdgeInsets.symmetric(vertical: 8.0, horizontal: 6.0),
-                      child: Text('İşlemler'),
+                    itemBuilder: (_) => [
+                      const PopupMenuItem(value: 0, child: ListTile(leading: Icon(Icons.play_arrow), title: Text('Dersi Başlat'))),
+                      const PopupMenuItem(value: 1, child: ListTile(leading: Icon(Icons.edit), title: Text('Düzenle'))),
+                      const PopupMenuItem(value: 2, child: ListTile(leading: Icon(Icons.delete), title: Text('Sil'))),
+                    ],
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                      decoration: BoxDecoration(color: Theme.of(context).colorScheme.primary, borderRadius: BorderRadius.circular(8)),
+                      child: Row(mainAxisSize: MainAxisSize.min, children: const [Icon(Icons.more_horiz, color: Colors.white), SizedBox(width: 6), Text('İşlemler', style: TextStyle(color: Colors.white))]),
                     ),
                   ),
                 ),
