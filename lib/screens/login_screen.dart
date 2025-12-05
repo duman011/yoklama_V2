@@ -97,6 +97,21 @@ class _LoginScreenState extends State<LoginScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
+                  // Logo + intro animation
+                  Center(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 8.0),
+                      child: Hero(
+                        tag: 'amasya_logo',
+                        child: SizedBox(
+                          width: 110,
+                          height: 110,
+                          child: Image.asset('assets/images/amasya_logo.png', fit: BoxFit.contain),
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 8),
                   // Role selector with swipeable pages
                   Padding(
                     padding: const EdgeInsets.symmetric(vertical: 12.0),

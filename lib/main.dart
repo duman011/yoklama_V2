@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'screens/login_screen.dart';
+import 'screens/splash_screen.dart';
 
 void main() {
   runApp(const MyApp());
@@ -12,9 +13,15 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
+      title: 'Yoklama Amasya',
       theme: ThemeData(
-        // This is the theme of your application.
+        // Colors tuned to Amasya University logo: primary red, secondary green
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: const Color(0xFFD62828),
+          primary: const Color(0xFFD62828),
+          secondary: const Color(0xFF2FA84F),
+        ),
+        useMaterial3: true,
         //
         // TRY THIS: Try running your application with "flutter run". You'll see
         // the application has a purple toolbar. Then, without quitting the app,
@@ -31,7 +38,8 @@ class MyApp extends StatelessWidget {
         // tested with just a hot reload.
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
       ),
-      home: const LoginScreen(),
+      // Start with a splash animation that navigates to LoginScreen
+      home: const SplashScreen(),
     );
   }
 }
