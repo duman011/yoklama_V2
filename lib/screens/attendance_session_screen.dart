@@ -34,10 +34,23 @@ class _AttendanceSessionScreenState extends State<AttendanceSessionScreen> {
     // Defer initialization that may run synchronous work until after
     // the first frame is rendered. This avoids blocking UI when the
     // route is pushed from a menu or dialog.
+    // ignore: avoid_print
+    print('AttendanceSessionScreen.initState start for ${widget.course['code']}');
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      // run initialization asynchronously after first frame so transition won't jank
       try {
+        // ignore: avoid_print
+        print('AttendanceSessionScreen.postFrameCallback: calling _initStudentTimes');
         _initStudentTimes();
+        // ignore: avoid_print
+        print('AttendanceSessionScreen.postFrameCallback: _initStudentTimes completed');
+
+        // Start timer after init
+        // ignore: avoid_print
+        print('AttendanceSessionScreen.postFrameCallback: starting timer');
         _startTimer();
+        // ignore: avoid_print
+        print('AttendanceSessionScreen.postFrameCallback: _startTimer scheduled');
       } catch (e, st) {
         // If anything unexpected occurs, report to console but don't crash UI
         // ignore: avoid_print
@@ -47,16 +60,22 @@ class _AttendanceSessionScreenState extends State<AttendanceSessionScreen> {
   }
 
   void _initStudentTimes() {
+    // ignore: avoid_print
+    print('_initStudentTimes: initializing ${_students.length} students');
     for (final s in _students) {
       if (s['status'] == 'present' && (s['time'] ?? '').isEmpty) {
         final now = DateTime.now();
         s['time'] = '${now.hour.toString().padLeft(2, '0')}:${now.minute.toString().padLeft(2, '0')}';
       }
     }
+    // ignore: avoid_print
+    print('_initStudentTimes: completed');
   }
 
   void _startTimer() {
     _timer?.cancel();
+    // ignore: avoid_print
+    print('_startTimer: starting timer with _remainingSeconds=$_remainingSeconds');
     _timer = Timer.periodic(const Duration(seconds: 1), (t) {
       // ÖNEMLİ İYİLEŞTİRME: Eğer _isRunning false ise, setState çağrısı YAPILMAZ.
       // Bu, Timer'ın hala çalışırken (periodic olduğu için) gereksiz setState çağrılarını engeller.
@@ -78,6 +97,8 @@ class _AttendanceSessionScreenState extends State<AttendanceSessionScreen> {
     // `mounted` kontrolü, Widget Tree'de olup olmadığımızı kontrol eder.
     if (mounted) { 
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Yoklama süresi doldu.')));
+      // ignore: avoid_print
+      print('_onFinished: attendance finished, popping with true');
       // Opsiyonel: Bitişte pop edilebilir
       Navigator.of(context).pop(true);
     }

@@ -108,19 +108,28 @@ class _AcademicHomeScreenState extends State<AcademicHomeScreen> {
     if (value == 0) {
       // 1. Dersi Başlat (Yoklama Oturumu)
       int selected = 30; // Başlangıç değeri
-      final minutes = await showDialog<int>(
-        context: context,
-        // Dialog Builder kodunuz oldukça karmaşıktı. 
-        // Burada genel yapıyı korurken bazı küçük düzenlemeler yapıldı.
-        builder: (dctx) {
-          return _buildMinutePickerDialog(dctx, selected);
-        },
-      );
-      
+      // Schedule dialog to next event-loop tick so the popup menu can close first.
+      // Add simple debug prints to help pinpoint freeze location.
+      // ignore: avoid_print
+      print('Popup menu: Dersi Başlat seçildi — scheduling minute dialog');
+
+      final minutes = await Future<int?>.delayed(Duration.zero, () {
+        // This returns the future produced by showDialog and schedules it after the popup closes.
+        return showDialog<int>(
+          context: context,
+          builder: (dctx) => _buildMinutePickerDialog(dctx, selected),
+        );
+      });
+
+      // ignore: avoid_print
+      print('Minute dialog closed, result: $minutes');
+
       if (minutes == null) return;
-      
+
       // rootNavigator: true kullanımı doğru, ancak gerekliyse kullanın.
-      Navigator.of(context, rootNavigator: true).push<bool>( 
+      // ignore: avoid_print
+      print('Navigating to AttendanceSessionScreen with $minutes minutes');
+      Navigator.of(context, rootNavigator: true).push<bool>(
         MaterialPageRoute(builder: (_) => AttendanceSessionScreen(course: course, durationMinutes: minutes)),
       );
     } else if (value == 1) {
