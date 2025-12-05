@@ -85,7 +85,12 @@ class _MinuteClockPickerState extends State<MinuteClockPicker> {
 
         // dial
         LayoutBuilder(builder: (context, constraints) {
-          final size = min(constraints.maxWidth, 260.0);
+          final mq = MediaQuery.of(context).size;
+          // make the dial responsive: never larger than available width,
+          // and also limit by a fraction of the screen height to avoid overflow in dialogs
+          final maxByWidth = min(constraints.maxWidth, 320.0);
+          final maxByHeight = mq.height * 0.45;
+          final size = min(maxByWidth, min(260.0, maxByHeight));
           return GestureDetector(
             onPanDown: (e) {
               final RenderBox box = context.findRenderObject() as RenderBox;

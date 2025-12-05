@@ -15,11 +15,11 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Yoklama Amasya',
       theme: ThemeData(
-        // Colors tuned to Amasya University logo: primary red, secondary green
+        // Updated harmonious color palette: indigo seed + cyan accents
         colorScheme: ColorScheme.fromSeed(
-          seedColor: const Color(0xFFD62828),
-          primary: const Color(0xFFD62828),
-          secondary: const Color(0xFF2FA84F),
+          seedColor: const Color(0xFF0D47A1), // deep indigo
+          primary: const Color(0xFF0D47A1),
+          secondary: const Color(0xFF00ACC1), // teal/cyan accent
         ),
         useMaterial3: true,
         //

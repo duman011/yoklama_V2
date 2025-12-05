@@ -131,7 +131,7 @@ class _AcademicHomeScreenState extends State<AcademicHomeScreen> {
                   alignment: Alignment.centerRight,
                   child: ElevatedButton.icon(
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.blue,
+                      backgroundColor: Theme.of(context).colorScheme.primary,
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                     ),
                     onPressed: () {
@@ -158,73 +158,49 @@ class _AcademicHomeScreenState extends State<AcademicHomeScreen> {
       context: context,
       builder: (dctx) {
         int selected = 30;
+        final mq = MediaQuery.of(dctx);
         return AlertDialog(
           insetPadding: const EdgeInsets.symmetric(horizontal: 18, vertical: 24),
           contentPadding: const EdgeInsets.all(12),
           title: const Text('Süre seçin (dakika)'),
-          content: SizedBox(
-            height: 360,
-            width: 360,
-            child: Column(
-              children: [
-                Expanded(
-                  child: Center(
-                    child: SizedBox(
-                      width: 320,
+          content: ConstrainedBox(
+            constraints: BoxConstraints(maxHeight: mq.size.height * 0.65, maxWidth: mq.size.width * 0.95),
+            child: SingleChildScrollView(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 6.0, vertical: 4.0),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const SizedBox(height: 8),
+                    SizedBox(
+                      width: mq.size.width * 0.85,
                       child: StatefulBuilder(builder: (ctx, setSt) {
                         return Column(
+                          mainAxisSize: MainAxisSize.min,
                           children: [
-                            // minute clock picker widget
-                            SizedBox(height: 8),
-                            Expanded(
-                              child: Padding(
-                                padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                                child: Column(
-                                  children: [
-                                    // use our custom widget
-                                    Expanded(
-                                      child: Center(
-                                        child: Builder(builder: (_) {
-                                          return SizedBox(
-                                            height: 260,
-                                            child: Column(children: [
-                                              // The picker itself
-                                              Expanded(
-                                                child: SingleChildScrollView(
-                                                  child: SizedBox(
-                                                    height: 260,
-                                                    child: Column(children: [
-                                                      Expanded(
-                                                        child: Center(
-                                                          child: Padding(
-                                                            padding: const EdgeInsets.all(4.0),
-                                                            child: MinuteClockPicker(
-                                                              initialMinutes: selected,
-                                                              onChanged: (m) => setSt(() => selected = m),
-                                                            ),
-                                                          ),
-                                                        ),
-                                                      ),
-                                                    ]),
-                                                  ),
-                                                ),
-                                              ),
-                                            ]),
-                                          );
-                                        }),
-                                      ),
-                                    ),
-                                  ],
-                                ),
+                            Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                              child: MinuteClockPicker(
+                                initialMinutes: selected,
+                                onChanged: (m) => setSt(() => selected = m),
                               ),
+                            ),
+                            const SizedBox(height: 12),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Text('Seçili: ', style: Theme.of(context).textTheme.bodyMedium),
+                                const SizedBox(width: 6),
+                                Text('\$selected dk', style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold)),
+                              ],
                             ),
                           ],
                         );
                       }),
                     ),
-                  ),
+                  ],
                 ),
-              ],
+              ),
             ),
           ),
           actions: [
