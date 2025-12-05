@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'student_qr_scan_screen.dart';
+import 'class_list_screen.dart';
 
 class StudentHomeScreen extends StatelessWidget {
   final String studentEmail;
@@ -53,12 +53,27 @@ class StudentHomeScreen extends StatelessWidget {
                 ElevatedButton(
                   onPressed: () {
                     Navigator.of(context).push(MaterialPageRoute(
-                      builder: (_) => StudentQrScanScreen(studentEmail: studentEmail),
+                      builder: (_) => ClassListScreen(studentEmail: studentEmail),
                     ));
                   },
                   child: const Padding(
                     padding: EdgeInsets.symmetric(vertical: 14),
                     child: Text('Derse Katıl'),
+                  ),
+                ),
+                const SizedBox(height: 12),
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Theme.of(context).colorScheme.secondary,
+                  ),
+                  onPressed: () {
+                    Navigator.of(context).push(MaterialPageRoute(
+                      builder: (_) => ClassListScreen(studentEmail: studentEmail, showOnlyEnrolled: true),
+                    ));
+                  },
+                  child: const Padding(
+                    padding: EdgeInsets.symmetric(vertical: 14),
+                    child: Text('Katıldığım Dersler'),
                   ),
                 ),
               ],
