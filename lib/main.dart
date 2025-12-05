@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+// ignore: unused_import
 import 'screens/login_screen.dart';
 import 'screens/splash_screen.dart';
 
