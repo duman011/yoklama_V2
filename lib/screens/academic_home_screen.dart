@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'classroom_form_screen.dart';
-import 'attendance_screen.dart';
+import 'attendance_session_screen.dart';
 
 class AcademicHomeScreen extends StatefulWidget {
   // ignore: use_super_parameters
@@ -148,39 +148,60 @@ class _AcademicHomeScreenState extends State<AcademicHomeScreen> {
                                 ListTile(
   leading: const Icon(Icons.play_arrow),
   title: const Text('Dersi Başlat'),
-  onTap: () async { // <-- Metodu async olarak işaretledik
+  onTap: () async {
+    // Close the bottom sheet first
+    Navigator.of(ctx).pop();
 
-    // 1. AttendanceScreen'ı Başlat. push metodu zaten Future döndürür.
-    // ignore: unused_local_variable
-    final finished = await Navigator.of(context, rootNavigator: true).push<bool>(
-      MaterialPageRoute(
-        builder: (_) => AttendanceScreen(course: c),
-      ),
+    // Ask the user for duration in minutes
+    final minutes = await showDialog<int>(
+      context: context,
+      builder: (dctx) {
+        final TextEditingController ctrl = TextEditingController(text: '30');
+        final _formKey = GlobalKey<FormState>();
+        return AlertDialog(
+          title: const Text('Yoklama süresi (dakika)'),
+          content: Form(
+            key: _formKey,
+            child: TextFormField(
+              controller: ctrl,
+              keyboardType: TextInputType.number,
+              decoration: const InputDecoration(hintText: 'Dakika cinsinden süre girin'),
+              validator: (v) {
+                if (v == null || v.trim().isEmpty) return 'Süre girin';
+                final n = int.tryParse(v.trim());
+                if (n == null || n <= 0) return 'Geçerli bir dakika girin';
+                return null;
+              },
+            ),
+          ),
+          actions: [
+            TextButton(onPressed: () => Navigator.of(dctx).pop(), child: const Text('İptal')),
+            ElevatedButton(
+              onPressed: () {
+                if (!(_formKey.currentState?.validate() ?? false)) return;
+                final n = int.parse(ctrl.text.trim());
+                Navigator.of(dctx).pop(n);
+              },
+              child: const Text('Başlat'),
+            ),
+          ],
+        );
+      },
     );
 
-    // 2. AttendanceScreen'dan Geri Dönüldüğünde (finished değeri geldiğinde)
-    //    Menüyü Kapat. (pop işlemini buraya taşımak, bazen donmayı çözebilir.)
-    //    Ancak bu, menü ekranı yoklama bitene kadar ekranda kalır demek. 
-    //    *ÖNCEKİ YAKLAŞIM DAHA DOĞRUYDU. Orijinal yaklaşıma dönüyoruz ama sırayı kontrol ediyoruz.*
-    
-    // YAKLAŞIM 2: Önce menüyü kapat, sonra push yap. Bu kez push'ı await ile bloklama.
+    if (minutes == null) return; // cancelled
 
-    // Menüyü kapat (showModalBottomSheet'ı kapatır)
-    Navigator.of(ctx).pop(); 
-
-    // Yeni ekranı aç (Bu işlem zaten hızlı olmalıdır.)
+    // Open the attendance session screen with given duration
     Navigator.of(context, rootNavigator: true).push<bool>(
       MaterialPageRoute(
-        builder: (_) => AttendanceScreen(course: c),
+        builder: (_) => AttendanceSessionScreen(course: c, durationMinutes: minutes),
       ),
     ).then((finished) {
-      
-      // Geri dönüşte sadece STATE güncellemesi yap.
       if (finished == true && mounted) {
         setState(() {
           _courses[idx] = {
             ..._courses[idx],
-            'status': 'finished', // Kurs durumunu güncelle
+            'status': 'finished',
           };
         });
       }
