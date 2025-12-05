@@ -36,7 +36,6 @@ class MyApp extends StatelessWidget {
         //
         // This works for code too, not just values: Most code changes can be
         // tested with just a hot reload.
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
       ),
       // Start with a splash animation that navigates to LoginScreen
       home: const SplashScreen(),
