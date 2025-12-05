@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'academic_home_screen.dart';
 import 'student_home_screen.dart';
 
@@ -106,7 +107,15 @@ class _LoginScreenState extends State<LoginScreen> {
                         child: SizedBox(
                           width: 110,
                           height: 110,
-                          child: Image.asset('assets/images/amasya_logo.png', fit: BoxFit.contain),
+                          child: FutureBuilder<ByteData>(
+                            future: rootBundle.load('assets/images/amasya_logo.png'),
+                            builder: (context, snapshot) {
+                              if (snapshot.connectionState == ConnectionState.done && snapshot.hasData) {
+                                return Image.memory(snapshot.data!.buffer.asUint8List(), fit: BoxFit.contain);
+                              }
+                              return const FlutterLogo();
+                            },
+                          ),
                         ),
                       ),
                     ),

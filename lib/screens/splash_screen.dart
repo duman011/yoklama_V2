@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'dart:async';
 import 'login_screen.dart';
 
@@ -40,11 +41,19 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              // logo (asset)
+              // logo (asset if bundled) - gracefully fall back to FlutterLogo
               SizedBox(
                 width: 140,
                 height: 140,
-                child: Image.asset('assets/images/amasya_logo.png', fit: BoxFit.contain),
+                child: FutureBuilder<ByteData>(
+                  future: rootBundle.load('assets/images/amasya_logo.png'),
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.done && snapshot.hasData) {
+                      return Image.memory(snapshot.data!.buffer.asUint8List(), fit: BoxFit.contain);
+                    }
+                    return const FlutterLogo(size: 140);
+                  },
+                ),
               ),
               const SizedBox(height: 18),
               Text('Amasya Üniversitesi - Yoklama', style: Theme.of(context).textTheme.titleMedium),

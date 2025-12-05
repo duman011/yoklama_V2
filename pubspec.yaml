@@ -59,9 +59,11 @@ flutter:
   # the material Icons class.
   uses-material-design: true
 
-  # Add the university logo asset (place the file at assets/images/amasya_logo.png)
-  assets:
-    - assets/images/amasya_logo.png
+  # The university logo asset is optional during development.
+  # If you add `assets/images/amasya_logo.png` to the repo, uncomment
+  # the lines below to bundle it.
+  # assets:
+  #   - assets/images/amasya_logo.png
 
   # To add assets to your application, add an assets section, like this:
   # assets:
