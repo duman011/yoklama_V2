@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'classroom_form_screen.dart';
 import 'attendance_session_screen.dart';
+import 'minute_picker_screen.dart';
 // minute_clock_picker widget'ının hala gerekli olduğunu varsayıyoruz
-import '../widgets/minute_clock_picker.dart'; 
+ 
 
 class AcademicHomeScreen extends StatefulWidget {
   // Key kullanımı için 'use_super_parameters' yerine
@@ -108,27 +109,13 @@ class _AcademicHomeScreenState extends State<AcademicHomeScreen> {
     if (value == 0) {
       // 1. Dersi Başlat (Yoklama Oturumu)
       int selected = 30; // Başlangıç değeri
-      // Schedule dialog to next event-loop tick so the popup menu can close first.
-      // Add simple debug prints to help pinpoint freeze location.
-      // ignore: avoid_print
-      print('Popup menu: Dersi Başlat seçildi — scheduling minute dialog');
-
-      final minutes = await Future<int?>.delayed(Duration.zero, () {
-        // This returns the future produced by showDialog and schedules it after the popup closes.
-        return showDialog<int>(
-          context: context,
-          builder: (dctx) => _buildMinutePickerDialog(dctx, selected),
-        );
-      });
-
-      // ignore: avoid_print
-      print('Minute dialog closed, result: $minutes');
+      // Use a full-screen route for minute selection to avoid dialog/menu contention.
+      final minutes = await Navigator.of(context).push<int?>(
+        MaterialPageRoute(builder: (_) => MinutePickerScreen(initialMinutes: selected)),
+      );
 
       if (minutes == null) return;
 
-      // rootNavigator: true kullanımı doğru, ancak gerekliyse kullanın.
-      // ignore: avoid_print
-      print('Navigating to AttendanceSessionScreen with $minutes minutes');
       Navigator.of(context, rootNavigator: true).push<bool>(
         MaterialPageRoute(builder: (_) => AttendanceSessionScreen(course: course, durationMinutes: minutes)),
       );
@@ -161,60 +148,9 @@ class _AcademicHomeScreenState extends State<AcademicHomeScreen> {
     }
   }
 
-  // Süre Seçme Dialog'unu ana widget'tan ayırmak daha temizdir.
-  Widget _buildMinutePickerDialog(BuildContext dctx, int initialSelected) {
-    int selected = initialSelected;
-    final controller = TextEditingController(text: selected.toString());
-
-    return StatefulBuilder(
-      builder: (dctx2, setSt) {
-        return AlertDialog(
-          insetPadding: const EdgeInsets.symmetric(horizontal: 18, vertical: 24),
-          contentPadding: const EdgeInsets.all(12),
-          title: const Text('Süre seçin (dakika)'),
-          content: SingleChildScrollView(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 6.0, vertical: 4.0),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  // Numeric text input for minutes
-                  TextField(
-                    controller: controller,
-                    keyboardType: TextInputType.number,
-                    decoration: const InputDecoration(labelText: 'Dakika', hintText: 'örn. 30'),
-                    onChanged: (s) {
-                      final v = int.tryParse(s) ?? selected;
-                      final clamped = v.clamp(1, 999);
-                      setSt(() => selected = clamped);
-                    },
-                  ),
-                  const SizedBox(height: 12),
-                  // Minute wheel picker
-                  MinuteClockPicker(
-                    initialMinutes: selected,
-                    onChanged: (m) {
-                      setSt(() {
-                        selected = m;
-                        controller.text = m.toString();
-                        controller.selection = TextSelection.fromPosition(TextPosition(offset: controller.text.length));
-                      });
-                    },
-                  ),
-                  const SizedBox(height: 12),
-                  Text('$selected dk', style: Theme.of(dctx).textTheme.titleLarge), // dctx kullanmak daha doğru
-                ],
-              ),
-            ),
-          ),
-          actions: [
-            TextButton(onPressed: () => Navigator.of(dctx2).pop(), child: const Text('İptal')),
-            ElevatedButton(onPressed: () => Navigator.of(dctx2).pop(selected), child: const Text('Başlat')),
-          ],
-        );
-      },
-    );
-  }
+  // The minute picker dialog helper was replaced by a full-screen
+  // `MinutePickerScreen` to avoid showing a dialog while the popup menu
+  // is closing (this avoids UI contention that can cause freezes on some devices).
 
   // CourseCard Widget'ı
   Widget _buildCourseCard(BuildContext context, Map<String, String> c, int index) {
