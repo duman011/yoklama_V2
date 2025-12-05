@@ -137,30 +137,51 @@ class _AcademicHomeScreenState extends State<AcademicHomeScreen> {
                         final minutes = await showDialog<int>(
                           context: context,
                           builder: (dctx) {
-                            final mq = MediaQuery.of(dctx);
-                            return AlertDialog(
-                              insetPadding: const EdgeInsets.symmetric(horizontal: 18, vertical: 24),
-                              contentPadding: const EdgeInsets.all(12),
-                              title: const Text('Süre seçin (dakika)'),
-                              content: ConstrainedBox(
-                                constraints: BoxConstraints(maxHeight: mq.size.height * 0.65, maxWidth: mq.size.width * 0.95),
-                                child: SingleChildScrollView(
-                                  child: Padding(
-                                    padding: const EdgeInsets.symmetric(horizontal: 6.0, vertical: 4.0),
-                                    child: Column(mainAxisSize: MainAxisSize.min, children: [
-                                      const SizedBox(height: 8),
-                                      MinuteClockPicker(initialMinutes: selected, onChanged: (m) => selected = m),
-                                      const SizedBox(height: 12),
-                                      Text('\$selected dk', style: Theme.of(context).textTheme.titleLarge),
-                                    ]),
+                            // provide a controller so user can type minutes directly
+                            final controller = TextEditingController(text: selected.toString());
+                            return StatefulBuilder(builder: (dctx2, setSt) {
+                              final mq = MediaQuery.of(dctx2);
+                              return AlertDialog(
+                                insetPadding: const EdgeInsets.symmetric(horizontal: 18, vertical: 24),
+                                contentPadding: const EdgeInsets.all(12),
+                                title: const Text('Süre seçin (dakika)'),
+                                content: ConstrainedBox(
+                                  constraints: BoxConstraints(maxHeight: mq.size.height * 0.65, maxWidth: mq.size.width * 0.95),
+                                  child: SingleChildScrollView(
+                                    child: Padding(
+                                      padding: const EdgeInsets.symmetric(horizontal: 6.0, vertical: 4.0),
+                                      child: Column(mainAxisSize: MainAxisSize.min, children: [
+                                        // Numeric text input for minutes
+                                        TextField(
+                                          controller: controller,
+                                          keyboardType: TextInputType.number,
+                                          decoration: const InputDecoration(labelText: 'Dakika', hintText: 'örn. 30'),
+                                          onChanged: (s) {
+                                            final v = int.tryParse(s) ?? selected;
+                                            final clamped = v.clamp(1, 999);
+                                            setSt(() => selected = clamped);
+                                          },
+                                        ),
+                                        const SizedBox(height: 12),
+                                        // minute wheel picker (kept as visual helper)
+                                        MinuteClockPicker(initialMinutes: selected, onChanged: (m) {
+                                          setSt(() {
+                                            selected = m;
+                                            controller.text = m.toString();
+                                          });
+                                        }),
+                                        const SizedBox(height: 12),
+                                        Text('\$selected dk', style: Theme.of(context).textTheme.titleLarge),
+                                      ]),
+                                    ),
                                   ),
                                 ),
-                              ),
-                              actions: [
-                                TextButton(onPressed: () => Navigator.of(dctx).pop(), child: const Text('İptal')),
-                                ElevatedButton(onPressed: () => Navigator.of(dctx).pop(selected), child: const Text('Başlat')),
-                              ],
-                            );
+                                actions: [
+                                  TextButton(onPressed: () => Navigator.of(dctx2).pop(), child: const Text('İptal')),
+                                  ElevatedButton(onPressed: () => Navigator.of(dctx2).pop(selected), child: const Text('Başlat')),
+                                ],
+                              );
+                            });
                           },
                         );
                         if (minutes == null) return;
