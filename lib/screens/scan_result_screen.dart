@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'student_qr_scan_screen.dart';
+import 'student_home_screen.dart';
 
 class ScanResultScreen extends StatelessWidget {
   final Map<String, String> details;
@@ -57,9 +57,9 @@ class ScanResultScreen extends StatelessWidget {
               const SizedBox(height: 24),
               ElevatedButton(
                 onPressed: () {
-                  // Go back to a fresh scan - push replacement to go back to scan screen
+                  // Return to student home screen
                   Navigator.of(context).pushReplacement(MaterialPageRoute(
-                    builder: (_) => StudentQrScanScreen(studentEmail: details['studentEmail'] ?? ''),
+                    builder: (_) => StudentHomeScreen(studentEmail: details['studentEmail'] ?? ''),
                   ));
                 },
                 child: const Padding(
