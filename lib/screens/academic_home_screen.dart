@@ -152,38 +152,61 @@ class _AcademicHomeScreenState extends State<AcademicHomeScreen> {
     // Close the bottom sheet first
     Navigator.of(ctx).pop();
 
-    // Ask the user for duration in minutes
+    // Ask the user for duration in minutes using a large minute-picker UI
     final minutes = await showDialog<int>(
       context: context,
       builder: (dctx) {
-        final TextEditingController ctrl = TextEditingController(text: '30');
-        final _formKey = GlobalKey<FormState>();
+        int selected = 30;
         return AlertDialog(
-          title: const Text('Yoklama süresi (dakika)'),
-          content: Form(
-            key: _formKey,
-            child: TextFormField(
-              controller: ctrl,
-              keyboardType: TextInputType.number,
-              decoration: const InputDecoration(hintText: 'Dakika cinsinden süre girin'),
-              validator: (v) {
-                if (v == null || v.trim().isEmpty) return 'Süre girin';
-                final n = int.tryParse(v.trim());
-                if (n == null || n <= 0) return 'Geçerli bir dakika girin';
-                return null;
-              },
+          insetPadding: const EdgeInsets.symmetric(horizontal: 18, vertical: 24),
+          contentPadding: const EdgeInsets.all(12),
+          title: const Text('Süre seçin (dakika)'),
+          content: SizedBox(
+            height: 300,
+            child: Column(
+              children: [
+                // big display
+                Container(
+                  padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 20),
+                  decoration: BoxDecoration(borderRadius: BorderRadius.circular(12), color: Theme.of(context).colorScheme.primary.withOpacity(0.08)),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text('$selected', style: Theme.of(context).textTheme.displayMedium?.copyWith(fontWeight: FontWeight.bold)),
+                      const SizedBox(width: 8),
+                      Text('dk', style: Theme.of(context).textTheme.titleMedium),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 12),
+                Expanded(
+                  child: Center(
+                    child: SizedBox(
+                      height: 160,
+                      child: StatefulBuilder(builder: (ctx, setSt) {
+                        return ListWheelScrollView.useDelegate(
+                          itemExtent: 48,
+                          physics: const FixedExtentScrollPhysics(),
+                          perspective: 0.003,
+                          onSelectedItemChanged: (i) => setSt(() => selected = i + 1),
+                          childDelegate: ListWheelChildBuilderDelegate(
+                            builder: (context, index) {
+                              final val = index + 1;
+                              return Center(child: Text('$val', style: TextStyle(fontSize: 20, color: val == selected ? Theme.of(context).colorScheme.primary : Colors.black87)));
+                            },
+                            childCount: 180,
+                          ),
+                        );
+                      }),
+                    ),
+                  ),
+                ),
+              ],
             ),
           ),
           actions: [
             TextButton(onPressed: () => Navigator.of(dctx).pop(), child: const Text('İptal')),
-            ElevatedButton(
-              onPressed: () {
-                if (!(_formKey.currentState?.validate() ?? false)) return;
-                final n = int.parse(ctrl.text.trim());
-                Navigator.of(dctx).pop(n);
-              },
-              child: const Text('Başlat'),
-            ),
+            ElevatedButton(onPressed: () => Navigator.of(dctx).pop(selected), child: const Text('Başlat')),
           ],
         );
       },

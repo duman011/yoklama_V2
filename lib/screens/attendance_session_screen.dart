@@ -16,15 +16,22 @@ class _AttendanceSessionScreenState extends State<AttendanceSessionScreen> {
   bool _running = true;
 
   final List<Map<String, String>> _students = [
-    {'name': 'Ayşe Yılmaz', 'status': 'present'},
-    {'name': 'Ahmet Kaya', 'status': 'present'},
-    {'name': 'Zeynep Öztürk', 'status': 'absent'},
+    {'name': 'Ayşe Yılmaz', 'status': 'present', 'time': ''},
+    {'name': 'Ahmet Kaya', 'status': 'present', 'time': ''},
+    {'name': 'Zeynep Öztürk', 'status': 'absent', 'time': ''},
   ];
 
   @override
   void initState() {
     super.initState();
     _remainingSeconds = widget.durationMinutes * 60;
+    // initialize random/example times for students already present
+    for (final s in _students) {
+      if (s['status'] == 'present' && (s['time'] ?? '').isEmpty) {
+        final now = DateTime.now();
+        s['time'] = '${now.hour.toString().padLeft(2, '0')}:${now.minute.toString().padLeft(2, '0')}';
+      }
+    }
     _startTimer();
   }
 
@@ -61,6 +68,9 @@ class _AttendanceSessionScreenState extends State<AttendanceSessionScreen> {
 
   @override
   Widget build(BuildContext context) {
+    int _presentCount = _students.where((s) => s['status'] == 'present').length;
+    int _absentCount = _students.where((s) => s['status'] == 'absent').length;
+    int _excusedCount = _students.where((s) => s['status'] == 'excused').length;
     final courseTitle = '${widget.course['code'] ?? ''} - ${widget.course['name'] ?? ''}';
     return Scaffold(
       appBar: AppBar(
@@ -83,10 +93,22 @@ class _AttendanceSessionScreenState extends State<AttendanceSessionScreen> {
                 Text(courseTitle, style: Theme.of(context).textTheme.titleLarge?.copyWith(color: Colors.white, fontWeight: FontWeight.bold)),
                 const SizedBox(height: 8),
                 Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text('Kalan süre', style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Colors.white70)),
-                    Text(_formatTime(_remainingSeconds), style: Theme.of(context).textTheme.headlineMedium?.copyWith(color: Colors.white, fontWeight: FontWeight.w700)),
+                    // counts
+                    Chip(label: Text('Geldi: ${_presentCount}'), backgroundColor: Colors.white.withOpacity(0.12)),
+                    const SizedBox(width: 8),
+                    Chip(label: Text('Gelmedi: ${_absentCount}'), backgroundColor: Colors.white.withOpacity(0.12)),
+                    const SizedBox(width: 8),
+                    Chip(label: Text('İzinli: ${_excusedCount}'), backgroundColor: Colors.white.withOpacity(0.12)),
+                    const Spacer(),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: [
+                        Text('Kalan süre', style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Colors.white70)),
+                        const SizedBox(height: 4),
+                        Text(_formatTime(_remainingSeconds), style: Theme.of(context).textTheme.headlineSmall?.copyWith(color: Colors.white, fontWeight: FontWeight.w700)),
+                      ],
+                    ),
                   ],
                 ),
               ],
@@ -127,7 +149,7 @@ class _AttendanceSessionScreenState extends State<AttendanceSessionScreen> {
           Expanded(
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 12.0),
-              child: ListView.separated(
+                child: ListView.separated(
                 padding: const EdgeInsets.only(bottom: 24),
                 itemCount: _students.length,
                 separatorBuilder: (_, __) => const SizedBox(height: 10),
@@ -142,9 +164,39 @@ class _AttendanceSessionScreenState extends State<AttendanceSessionScreen> {
                         children: [
                           CircleAvatar(radius: 22, child: Text((s['name'] ?? '?')[0])),
                           const SizedBox(width: 12),
-                          Expanded(child: Text(s['name'] ?? '')), 
-                          IconButton(onPressed: () => setState(() => s['status'] = 'present'), icon: Icon(Icons.check_circle, color: status == 'present' ? Colors.green : Colors.grey)),
-                          IconButton(onPressed: () => setState(() => s['status'] = 'absent'), icon: Icon(Icons.cancel, color: status == 'absent' ? Colors.red : Colors.grey)),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(s['name'] ?? '', style: const TextStyle(fontWeight: FontWeight.w600)),
+                                const SizedBox(height: 6),
+                                // info line (time or placeholder)
+                                Text(
+                                  status == 'present' ? 'Geldi: ${s['time'] ?? '-'}' : (status == 'absent' ? 'Gelmedi' : ''),
+                                  style: TextStyle(color: Colors.black54, fontSize: 13),
+                                ),
+                              ],
+                            ),
+                          ),
+                          IconButton(
+                            onPressed: () {
+                              setState(() {
+                                s['status'] = 'present';
+                                final now = DateTime.now();
+                                s['time'] = '${now.hour.toString().padLeft(2, '0')}:${now.minute.toString().padLeft(2, '0')}';
+                              });
+                            },
+                            icon: Icon(Icons.check_circle, color: status == 'present' ? Colors.green : Colors.grey),
+                          ),
+                          IconButton(
+                            onPressed: () {
+                              setState(() {
+                                s['status'] = 'absent';
+                                s['time'] = '';
+                              });
+                            },
+                            icon: Icon(Icons.cancel, color: status == 'absent' ? Colors.red : Colors.grey),
+                          ),
                         ],
                       ),
                     ),
