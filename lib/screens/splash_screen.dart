@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
+// removed unused rootBundle import; using bundled Image.asset instead
 import 'dart:async';
 import 'login_screen.dart';
 
 class SplashScreen extends StatefulWidget {
-  const SplashScreen({Key? key}) : super(key: key);
+  const SplashScreen({super.key});
 
   @override
   State<SplashScreen> createState() => _SplashScreenState();
@@ -41,19 +41,12 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              // logo (asset if bundled) - gracefully fall back to FlutterLogo
+              // university logo (bundled asset). Use Image.asset so it appears immediately
+              // (we bundled the asset in pubspec.yaml and committed it to the repo).
               SizedBox(
                 width: 140,
                 height: 140,
-                child: FutureBuilder<ByteData>(
-                  future: rootBundle.load('assets/images/amasya_logo.png'),
-                  builder: (context, snapshot) {
-                    if (snapshot.connectionState == ConnectionState.done && snapshot.hasData) {
-                      return Image.memory(snapshot.data!.buffer.asUint8List(), fit: BoxFit.contain);
-                    }
-                    return const FlutterLogo(size: 140);
-                  },
-                ),
+                child: Image.asset('assets/images/amasya_logo.png', fit: BoxFit.contain),
               ),
               const SizedBox(height: 18),
               Text('Amasya Üniversitesi - Yoklama', style: Theme.of(context).textTheme.titleMedium),

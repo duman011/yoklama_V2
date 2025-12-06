@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
+// removed unused rootBundle import; using bundled Image.asset instead
 import 'academic_home_screen.dart';
 import 'student_home_screen.dart';
 
 class LoginScreen extends StatefulWidget {
-  const LoginScreen({Key? key}) : super(key: key);
+  const LoginScreen({super.key});
 
   @override
   State<LoginScreen> createState() => _LoginScreenState();
@@ -107,15 +107,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         child: SizedBox(
                           width: 110,
                           height: 110,
-                          child: FutureBuilder<ByteData>(
-                            future: rootBundle.load('assets/images/amasya_logo.png'),
-                            builder: (context, snapshot) {
-                              if (snapshot.connectionState == ConnectionState.done && snapshot.hasData) {
-                                return Image.memory(snapshot.data!.buffer.asUint8List(), fit: BoxFit.contain);
-                              }
-                              return const FlutterLogo();
-                            },
-                          ),
+                          child: Image.asset('assets/images/amasya_logo.png', fit: BoxFit.contain),
                         ),
                       ),
                     ),
@@ -135,6 +127,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                 width: containerWidth,
                                 padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 6),
                                 decoration: BoxDecoration(
+                                  // ignore: deprecated_member_use
                                   color: Theme.of(context).colorScheme.primary.withOpacity(0.08),
                                   borderRadius: BorderRadius.circular(12),
                                 ),
