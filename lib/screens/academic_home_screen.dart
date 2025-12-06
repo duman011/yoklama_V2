@@ -87,10 +87,10 @@ class _AcademicHomeScreenState extends State<AcademicHomeScreen> {
               )
             : ListView.separated(
                 itemCount: _courses.length,
-                separatorBuilder: (_, __) => const SizedBox(height: 18),
+                separatorBuilder: (_, _) => const SizedBox(height: 18),
                 itemBuilder: (context, index) {
                   final c = _courses[index];
-                  // `index` yerine closure tarafından yakalanan `index` kullanılır.
+                  // `index` yerine closure _tarafından yakalanan `index` kullanılır.
                   return _buildCourseCard(context, c, index); 
                 },
               ),
@@ -116,9 +116,32 @@ class _AcademicHomeScreenState extends State<AcademicHomeScreen> {
 
       if (minutes == null) return;
 
-      Navigator.of(context, rootNavigator: true).push<bool>(
-        MaterialPageRoute(builder: (_) => AttendanceSessionScreen(course: course, durationMinutes: minutes)),
-      );
+        // Generate a temporary 8-character alphanumeric session code (simulate backend)
+        final sessionCode = _generateSessionCode();
+
+        // Show the session code to the user before starting the attendance.
+        await showDialog<void>(
+          context: context,
+          barrierDismissible: false,
+          builder: (dctx) => AlertDialog(
+            title: const Text('Yoklama Kodu'),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Text('Dersi başlattınız. Aşağıdaki 8 haneli kod öğrencilerle paylaşılacak:'),
+                const SizedBox(height: 12),
+                SelectableText(sessionCode, style: Theme.of(context).textTheme.headlineMedium?.copyWith(letterSpacing: 2.0)),
+              ],
+            ),
+            actions: [
+              TextButton(onPressed: () => Navigator.of(dctx).pop(), child: const Text('Tamam')),
+            ],
+          ),
+        );
+
+        Navigator.of(context, rootNavigator: true).push<bool>(
+          MaterialPageRoute(builder: (_) => AttendanceSessionScreen(course: course, durationMinutes: minutes, sessionCode: sessionCode)),
+        );
     } else if (value == 1) {
       // 2. Düzenle
       final edited = await Navigator.of(context).push<Map<String, String?>>(
@@ -166,6 +189,7 @@ class _AcademicHomeScreenState extends State<AcademicHomeScreen> {
             width: double.infinity,
             decoration: BoxDecoration(
               gradient: LinearGradient(
+                // ignore: deprecated_member_use
                 colors: [Theme.of(context).colorScheme.primary.withOpacity(0.3), Theme.of(context).colorScheme.primary],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
@@ -225,5 +249,18 @@ class _AcademicHomeScreenState extends State<AcademicHomeScreen> {
         ],
       ),
     );
+  }
+
+  // Helper to create a random 8-character alphanumeric session code.
+  String _generateSessionCode() {
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    final rnd = DateTime.now().millisecondsSinceEpoch % 100000;
+    final buf = StringBuffer();
+    var seed = rnd;
+    for (var i = 0; i < 8; i++) {
+      seed = (seed * 1664525 + 1013904223) & 0x7FFFFFFF;
+      buf.write(chars[seed % chars.length]);
+    }
+    return buf.toString();
   }
 }

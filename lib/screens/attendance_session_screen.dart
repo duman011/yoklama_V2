@@ -4,8 +4,9 @@ import 'package:flutter/material.dart';
 class AttendanceSessionScreen extends StatefulWidget {
   final Map<String, String> course;
   final int durationMinutes;
+  final String? sessionCode;
   // Key kullanımı için 'use_super_parameters' yerine doğrudan 'super.key'
-  const AttendanceSessionScreen({super.key, required this.course, required this.durationMinutes});
+  const AttendanceSessionScreen({super.key, required this.course, required this.durationMinutes, this.sessionCode});
 
   @override
   State<AttendanceSessionScreen> createState() => _AttendanceSessionScreenState();
@@ -176,7 +177,7 @@ class _AttendanceSessionScreenState extends State<AttendanceSessionScreen> {
                 // ÖNEMLİ İYİLEŞTİRME: Öğrenci listesini alfabetik veya duruma göre sıralamak
                 // (örneğin gelmeyenler üste) takip kolaylığı sağlar.
                 itemCount: _students.length,
-                separatorBuilder: (_, __) => const SizedBox(height: 10),
+                separatorBuilder: (_, _) => const SizedBox(height: 10),
                 itemBuilder: (context, i) {
                   final s = _students[i];
                   return _buildStudentCard(context, s);
@@ -197,6 +198,7 @@ class _AttendanceSessionScreenState extends State<AttendanceSessionScreen> {
       decoration: BoxDecoration(
         // Kalan süreye göre renk geçişi (daha az süre = daha kırmızı)
         gradient: LinearGradient(
+          // ignore: deprecated_member_use
           colors: [color.withOpacity(0.8), color], 
           begin: Alignment.topLeft, 
           end: Alignment.bottomRight
@@ -208,6 +210,16 @@ class _AttendanceSessionScreenState extends State<AttendanceSessionScreen> {
         children: [
           Text(title, style: Theme.of(context).textTheme.titleLarge?.copyWith(color: Colors.white, fontWeight: FontWeight.bold)),
           const SizedBox(height: 8),
+          if (widget.sessionCode != null) ...[
+            Row(
+              children: [
+                const Text('Oturum Kodu: ', style: TextStyle(color: Colors.white70)),
+                const SizedBox(width: 8),
+                SelectableText(widget.sessionCode!, style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold, letterSpacing: 2.0)),
+              ],
+            ),
+            const SizedBox(height: 8),
+          ],
           Row(
             children: [
               // Sayacın görünürlüğü artırıldı
@@ -235,6 +247,7 @@ class _AttendanceSessionScreenState extends State<AttendanceSessionScreen> {
   Widget _buildCountChip(String label, Color color) {
     return Chip(
       label: Text(label, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w500)),
+      // ignore: deprecated_member_use
       backgroundColor: color.withOpacity(0.8),
     );
   }
@@ -292,6 +305,7 @@ class _AttendanceSessionScreenState extends State<AttendanceSessionScreen> {
         // Duruma göre solda ince bir çizgi eklendi
         border: Border(left: BorderSide(color: statusColor, width: 6)),
         boxShadow: [
+          // ignore: deprecated_member_use
           BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 4, offset: const Offset(0, 2)),
         ],
       ),
@@ -301,6 +315,7 @@ class _AttendanceSessionScreenState extends State<AttendanceSessionScreen> {
           // Avatar: Arka planı duruma göre renklendirme
           CircleAvatar(
             radius: 22,
+            // ignore: deprecated_member_use
             backgroundColor: statusColor.withOpacity(0.15),
             foregroundColor: statusColor,
             child: Text((s['name'] ?? '?')[0], style: const TextStyle(fontWeight: FontWeight.bold)),
@@ -362,6 +377,7 @@ class _AttendanceSessionScreenState extends State<AttendanceSessionScreen> {
     if (shouldEnd == true) {
       _timer?.cancel();
       // false ile geri dönmek, oturumun tamamlanmadığı anlamına gelir.
+      // ignore: use_build_context_synchronously
       Navigator.of(context).pop(false); 
     }
   }
