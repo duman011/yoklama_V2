@@ -1,18 +1,38 @@
-# yoklama_amasya
+# Yoklama Amasya (Mobile) — Frontend
 
-A new Flutter project.
+> frontend ok
 
-## Getting Started
+Kısa açıklama
+- Bu depo, Amasya Üniversitesi için geliştirilmiş mobil yoklama uygulamasının Flutter (Dart) frontend kodlarını içerir.
+- Ana özellikler uygulamanın şu ana kadarki durumu:
+	- Ders listesi (akademisyen ve öğrenci görünümleri)
+	- "Dersi Başlat" akışı: dakika seçimi (çark veya sayısal giriş), oturum başlatma
+	- Oturum başlatıldığında oluşturulan 8 haneli oturum kodu gösterimi (şimdilik lokal üretim, backend eklendiğinde değiştirilecek)
+	- Yoklama oturumu ekranı: sayaç (geri sayım), durdur/devam, öğrenciler ve durumları
+	- `MinuteClockPicker` — dairesel dakika seçim düğmesi
+	- Splash / Login ekranlarında üniversite logosu (bundled asset)
 
-This project is a starting point for a Flutter application.
+Durum / Notlar
+- Frontend geliştirildi ve temel akışlar çalışır — `frontend ok`.
+- Backend entegrasyonu (oturum kodu, gerçek öğrenci verisi, yoklama sonuçlarının kaydı) henüz tamamlanmadı. Şu an oturum kodu yerel olarak üretiliyor; backend hazır olduğunda `_generateSessionCode()` veya ilgili yerler API'ye bağlanacaktır.
+- Depoda şu anda bazı çalışma dizini değişiklikleri henüz commitlenmemiş olabilir; isterseniz kalan değişiklikleri de commitleyip push edebilirim.
 
-A few resources to get you started if this is your first Flutter project:
+Nasıl çalıştırılır (kısa)
+1. Flutter SDK yüklü olmalı (repo `.dart_tool/version`: 3.38.3 olarak kaydedildi).
+2. Bağımlılıkları yükleyin:
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+```bash
+flutter pub get
+```
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
-# yoklama_V2
-# yoklama_V2
+3. Uygulamayı çalıştırın (örnek Android):
+
+```bash
+flutter run
+```
+
+Geri dönmek / devam etmek
+- Bu README'ye daha sonra backend entegrasyonu ve ekstra dokümantasyon (API uç noktaları, test senaryoları) eklenecektir — ihtiyacınız olduğunda buraya geri dönebiliriz.
+
+İletişim / not
+- README açıklamasına `frontend ok` olarak işaretlendi. Backend entegrasyonu için gereken endpointleri sağladığınızda, gerekli ağ çağrılarını ekleyip akışı test edebilirim.
