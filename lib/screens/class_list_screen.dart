@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 class ClassListScreen extends StatefulWidget {
   final String studentEmail;
   final bool showOnlyEnrolled;
-  const ClassListScreen({Key? key, required this.studentEmail, this.showOnlyEnrolled = false}) : super(key: key);
+  const ClassListScreen({super.key, required this.studentEmail, this.showOnlyEnrolled = false});
 
   @override
   State<ClassListScreen> createState() => _ClassListScreenState();
@@ -12,9 +12,9 @@ class ClassListScreen extends StatefulWidget {
 class _ClassListScreenState extends State<ClassListScreen> {
   // Sample data; replace with API data later
   final List<Map<String, String>> _allClasses = [
-    { 'name': 'Matematik', 'sınıf': 'A101', 'saat': '09:00' },
-    { 'name': 'Fizik', 'sınıf': 'B202', 'saat': '11:00' },
-    { 'name': 'Programlama', 'sınıf': 'C303', 'saat': '14:00' },
+    { 'name': 'Matematik', 'sınıf': 'A101', 'saat': '09:00', 'attended': '3' },
+    { 'name': 'Fizik', 'sınıf': 'B202', 'saat': '11:00', 'attended': '1' },
+    { 'name': 'Programlama', 'sınıf': 'C303', 'saat': '14:00', 'attended': '0' },
   ];
 
   @override
@@ -28,7 +28,7 @@ class _ClassListScreenState extends State<ClassListScreen> {
       body: ListView.separated(
         padding: const EdgeInsets.all(16),
         itemCount: classes.length,
-        separatorBuilder: (_, __) => const SizedBox(height: 12),
+        separatorBuilder: (_, _) => const SizedBox(height: 12),
         itemBuilder: (context, index) {
           final item = classes[index];
           return Card(
@@ -56,10 +56,14 @@ class _ClassListScreenState extends State<ClassListScreen> {
                         children: [
                           Text('Saati: ${item['saat']}', style: Theme.of(context).textTheme.bodySmall),
                           const SizedBox(height: 8),
-                          ElevatedButton(
-                            onPressed: () => _showJoinDialog(context, item),
-                            child: const Text('Yoklamaya Gir'),
-                          ),
+                          // If this screen is showing only enrolled classes, do not offer actions.
+                          if (widget.showOnlyEnrolled) 
+                            Text('Katılım: ${item['attended'] ?? '0'} kez', style: Theme.of(context).textTheme.bodyMedium)
+                          else
+                            ElevatedButton(
+                              onPressed: () => _showJoinDialog(context, item),
+                              child: const Text('Yoklamaya Gir'),
+                            ),
                         ],
                       ),
                     ],
@@ -74,17 +78,17 @@ class _ClassListScreenState extends State<ClassListScreen> {
   }
 
   void _showJoinDialog(BuildContext context, Map<String, String> lesson) {
-    final TextEditingController _codeCtrl = TextEditingController();
-    final _formKey = GlobalKey<FormState>();
+    final TextEditingController codeCtrl = TextEditingController();
+    final formKey = GlobalKey<FormState>();
 
     showDialog<void>(
       context: context,
       builder: (ctx) => AlertDialog(
         title: Text('Yoklamaya Gir — ${lesson['name']}'),
         content: Form(
-          key: _formKey,
+          key: formKey,
           child: TextFormField(
-            controller: _codeCtrl,
+            controller: codeCtrl,
             maxLength: 8,
             decoration: const InputDecoration(
               labelText: 'Kod (8 haneli)',
@@ -101,8 +105,8 @@ class _ClassListScreenState extends State<ClassListScreen> {
           TextButton(onPressed: () => Navigator.of(ctx).pop(), child: const Text('Vazgeç')),
           ElevatedButton(
             onPressed: () async {
-              if (!(_formKey.currentState?.validate() ?? false)) return;
-              final code = _codeCtrl.text.trim();
+              if (!(formKey.currentState?.validate() ?? false)) return;
+              final code = codeCtrl.text.trim();
               Navigator.of(ctx).pop();
               await _performJoin(context, lesson, code);
             },
@@ -125,9 +129,11 @@ class _ClassListScreenState extends State<ClassListScreen> {
     await Future.delayed(const Duration(seconds: 2));
 
     // Dismiss loading
+    // ignore: use_build_context_synchronously
     Navigator.of(context).pop();
 
     // For now always success — later replace with API call and real handling
+    // ignore: use_build_context_synchronously
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text('Yoklamaya girildi — Ders: ${lesson['name']} (kod: $code)')),
     );
